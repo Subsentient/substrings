@@ -228,18 +228,24 @@ static SSBool __SubStrings__Split(register char *HalfOneOut, register char *Half
 		default:
 			return false;
 	}
-	
-	for (; Worker != StopH1; ++HalfOneOut, ++Worker)
+
+	if (HalfOneOut)
 	{
-		*HalfOneOut = *Worker;
+		for (; Worker != StopH1; ++HalfOneOut, ++Worker)
+		{
+			*HalfOneOut = *Worker;
+		}
+		*HalfOneOut = '\0';
 	}
-	*HalfOneOut = '\0';
 	
-	for (Worker = StartH2; *Worker != '\0'; ++HalfTwoOut, ++Worker)
+	if (HalfTwoOut)
 	{
-		*HalfTwoOut = *Worker;
+		for (Worker = StartH2; *Worker != '\0'; ++HalfTwoOut, ++Worker)
+		{
+			*HalfTwoOut = *Worker;
+		}
+		*HalfTwoOut = '\0';
 	}
-	*HalfTwoOut = '\0';
 	
 	return true;
 }	

@@ -16,6 +16,7 @@ enum { SPLIT_NOKEEP, SPLIT_HALFONE, SPLIT_HALFTWO };
 extern const struct _SubStrings
 {
 	SSBool (*Compare)(const char *Match, const char *Source);
+	SSBool (*NCompare)(const char *Match, const unsigned long Length, const char *Source);
 	SSBool (*StartsWith)(const char *Match, const char *Source);
 	SSBool (*EndsWith)(const char *Match, const char *Source);
 	unsigned long (*Length)(const char *String);

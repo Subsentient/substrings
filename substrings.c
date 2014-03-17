@@ -12,6 +12,7 @@ static SSBool __SubStrings__StartsWith(const char *Match, const char *Source);
 static SSBool __SubStrings__EndsWith(const char *Match, const char *Source);
 static unsigned long __SubStrings__Copy(char *Dest, const char *Source, unsigned long Max);
 static SSBool __SubStrings__Compare(const char *Match, const char *Source);
+static SSBool __SubStrings_NCompare(const char *Match, const unsigned long Length, const char *Source);
 static unsigned long __SubStrings__Cat(char *Dest, const char *Snip, unsigned long DestTotalSize);
 static char *__SubStrings__Find(const char *const Match, const int ResultNumber, const char *const InStream);
 static char *__SubStrings__CFind(const char Match, const int ResultNumber, const char *InStream);
@@ -25,9 +26,9 @@ static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
 /*Actual functions.*/
 const struct _SubStrings SubStrings =
 	{
-		__SubStrings__Compare, __SubStrings__StartsWith,
-		__SubStrings__EndsWith, __SubStrings__Length,
-		__SubStrings__Copy, __SubStrings__Cat,
+		__SubStrings__Compare, __SubStrings_NCompare, 
+		__SubStrings__StartsWith, __SubStrings__EndsWith,
+		__SubStrings__Length, __SubStrings__Copy, __SubStrings__Cat,
 		__SubStrings__Find, __SubStrings__CFind,
 		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
 		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump }
@@ -42,18 +43,30 @@ static unsigned long __SubStrings__Length(const char *String)
 	return Inc;
 }
 
-static SSBool __SubStrings__Compare(const char *Match, const char *Source)
-{
-	const unsigned long MatchLen = SubStrings.Length(Match), SourceLen = SubStrings.Length(Source);
-	register unsigned long Inc = 0;
+static SSBool __SubStrings__Compare(register const char *Match, register const char *Source)
+{	
+	for (; *Match && *Source; ++Match, ++Source)
+	{
+		if (*Match != *Source) return false;
+	}
+	
+	if (*Match != *Source) return false; /*If one string is shorter than the other*/
+	
+	return true;
+}
 
-	if (MatchLen != SourceLen) return false;
+static SSBool __SubStrings_NCompare(register const char *Match, const unsigned long Length, register const char *Source)
+{
+	register unsigned long Inc = 0;
 	
-	for (; *Match == *Source && Inc < MatchLen; ++Inc, ++Match, ++Source);
+	for (; *Match && *Source && Inc < Length - 1; ++Inc, ++Match, ++Source)
+	{
+		if (*Match != *Source) return false;
+	}
 	
-	if (Inc == MatchLen) return true;
+	if (*Match != *Source) return false;
 	
-	return false;
+	return true;
 }
 
 static SSBool __SubStrings__StartsWith(const char *Match, const char *Source)

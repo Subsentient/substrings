@@ -6,7 +6,7 @@ PREFIX = /usr
 all:
 	@echo ""
 	@echo "Building libsubstrings.so.0.1..."
-	$(CC) substrings.c -o libsubstrings.so.0.1 $(CFLAGS) -shared -Wl,-soname,libsubstrings.so.0 -nostdlib
+	$(CC) substrings.c -o libsubstrings.so.0.1 $(CFLAGS) -shared -Wl,-soname,libsubstrings.so.0
 	ln -sf libsubstrings.so.0.1 libsubstrings.so.0
 	ln -sf libsubstrings.so.0.1 libsubstrings.so
 	@echo ""

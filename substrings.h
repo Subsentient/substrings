@@ -24,8 +24,10 @@ extern const struct _SubStrings
 	unsigned long (*Cat)(char *Dest, const char *Source, unsigned long DestTotalSize);
 	char *(*Find)(const char *Match, const int ResultNumber, const char *InStream);
 	char *(*CFind)(const char Match, const int ResultNumber, const char *InStream);
+	SSBool (*Replace)(register char *Stream, unsigned long StreamSize, const char *Match, const char *Replacement);
 	SSBool (*Split)(char *HalfOneOut, char *HalfTwoOut, const char *Match, const char *InStream, int Mode);
 	SSBool (*Between)(char *OutBuf, const char *First, const char *Second, const char *InStream);
+	
 	char *(*Reverse)(char *OutStream, const char *InStream);
 	struct
 	{

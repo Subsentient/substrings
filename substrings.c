@@ -2,6 +2,8 @@
  * Please read the file UNLICENSE.TXT for more information.*/
  
 #define NULL (void*)0
+
+#include <stdlib.h>
 #include "substrings.h"
 
 enum { false, true };
@@ -16,6 +18,7 @@ static SSBool __SubStrings_NCompare(const char *Match, const unsigned long Lengt
 static unsigned long __SubStrings__Cat(char *Dest, const char *Snip, unsigned long DestTotalSize);
 static char *__SubStrings__Find(const char *const Match, const int ResultNumber, const char *const InStream);
 static char *__SubStrings__CFind(const char Match, const int ResultNumber, const char *InStream);
+static SSBool __SubStrings__Replace(register char *InStream, unsigned long OutStreamSize, const char *Match, const char *Replacement);
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode);
 static SSBool __SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
@@ -29,7 +32,7 @@ const struct _SubStrings SubStrings =
 		__SubStrings__Compare, __SubStrings_NCompare, 
 		__SubStrings__StartsWith, __SubStrings__EndsWith,
 		__SubStrings__Length, __SubStrings__Copy, __SubStrings__Cat,
-		__SubStrings__Find, __SubStrings__CFind,
+		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
 		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
 		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump }
 	};
@@ -203,11 +206,32 @@ static char *__SubStrings__CFind(const char Match, const int ResultNumber, const
 	return NULL;
 }
 
+static SSBool __SubStrings__Replace(register char *Stream, unsigned long StreamSize, const char *Match, const char *Replacement)
+{ /*I decided to use some existing functions so we don't have to reinvent the wheel here.
+	The optimizer should do ok by inlining these.*/
+	char *HalfOne = malloc(StreamSize), *HalfTwo = malloc(StreamSize);
+	register int ReplaceCount = 0;
+	
+	for (; SubStrings.Split(HalfOne, HalfTwo, Match, Stream, SPLIT_NOKEEP); ++ReplaceCount)
+	{
+		*Stream = '\0';
+		SubStrings.Cat(Stream, HalfOne, StreamSize);
+		SubStrings.Cat(Stream, Replacement, StreamSize);
+		SubStrings.Cat(Stream, HalfTwo, StreamSize);
+	}
+	
+	free(HalfOne); free(HalfTwo);
+	
+	if (ReplaceCount) return true;
+	
+	return false;
+}
+		
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode)
 {
 	register const char *Worker = InStream;
-	const char *const Delimiter = SubStrings.Find(Match, 0, InStream);
+	const char *const Delimiter = SubStrings.Find(Match, 1, InStream);
 	const char *StopH1 = NULL;
 	const char *StartH2 = NULL;
 	
@@ -253,8 +277,8 @@ static SSBool __SubStrings__Split(register char *HalfOneOut, register char *Half
 static SSBool __SubStrings__Between(register char *OutBuf, const char *First, const char *Second, const char *InStream)
 { /*Get the data between First and Second.*/
 	register const char *Worker = NULL;
-	const char *FirstStart = SubStrings.Find(First, 0, InStream);
-	const char *SecondStart = SubStrings.Find(Second, 0, InStream);
+	const char *FirstStart = SubStrings.Find(First, 1, InStream);
+	const char *SecondStart = SubStrings.Find(Second, 1, InStream);
 	
 	if (!FirstStart || !SecondStart || FirstStart >= SecondStart) return false;
 	

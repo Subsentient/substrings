@@ -21,7 +21,7 @@ static char *__SubStrings__CFind(const char Match, const int ResultNumber, const
 static SSBool __SubStrings__Replace(register char *InStream, unsigned long OutStreamSize, const char *Match, const char *Replacement);
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode);
-static SSBool __SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
+static char *__SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
 static char *__SubStrings__Reverse(char *OutStream, const char *InStream);
 static char *__SubStrings__LP__NextLine(const char *InStream);
 static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
@@ -274,15 +274,16 @@ static SSBool __SubStrings__Split(register char *HalfOneOut, register char *Half
 	return true;
 }	
 
-static SSBool __SubStrings__Between(register char *OutBuf, const char *First, const char *Second, const char *InStream)
-{ /*Get the data between First and Second.*/
+static char *__SubStrings__Between(register char *OutBuf, const char *First, const char *Second, const char *InStream)
+{ /*Get the data between First and Second, and return the location in InStream we found it.*/
+	const char *RetVal = NULL;
 	register const char *Worker = NULL;
 	const char *FirstStart = SubStrings.Find(First, 1, InStream);
 	const char *SecondStart = SubStrings.Find(Second, 1, InStream);
 	
-	if (!FirstStart || !SecondStart || FirstStart >= SecondStart) return false;
+	if (!FirstStart || !SecondStart || FirstStart >= SecondStart) return NULL;
 	
-	Worker = FirstStart + SubStrings.Length(First);
+	RetVal = Worker = FirstStart + SubStrings.Length(First);
 	
 	while (Worker != SecondStart)
 	{
@@ -290,7 +291,7 @@ static SSBool __SubStrings__Between(register char *OutBuf, const char *First, co
 	}
 	*OutBuf = '\0';
 	
-	return true;
+	return (char*)RetVal;
 }
 
 static char *__SubStrings__Reverse(register char *OutStream, register const char *InStream)

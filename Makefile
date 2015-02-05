@@ -1,16 +1,16 @@
 CC = gcc
 AR = ar
 RANLIB = ranlib
-CFLAGS = -std=gnu89 -pedantic -Wall -O3 -fPIC
+CFLAGS = -std=gnu99 -pedantic -Wall -O3
 PREFIX = /usr
 all: shared static
 
 shared:
 	@echo ""
-	@echo "Building libsubstrings.so.0.1..."
-	$(CC) substrings.c -o libsubstrings.so.0.1 $(CFLAGS) -shared -Wl,-soname,libsubstrings.so.0
-	ln -sf libsubstrings.so.0.1 libsubstrings.so.0
-	ln -sf libsubstrings.so.0.1 libsubstrings.so
+	@echo "Building libsubstrings.so.0.2..."
+	$(CC) substrings.c -o libsubstrings.so.0.2 $(CFLAGS) -shared -Wl,-soname,libsubstrings.so.0 -nostdlib
+	ln -sf libsubstrings.so.0.2 libsubstrings.so.0
+	ln -sf libsubstrings.so.0.2 libsubstrings.so
 
 static:
 	@echo ""
@@ -25,9 +25,9 @@ install-hdr:
 
 install-shared:
 	mkdir -p $(PREFIX)/lib/
-	install -v -m 0644 libsubstrings.so.0.1 $(PREFIX)/lib/
-	ln -sf libsubstrings.so.0.1 $(PREFIX)/lib/libsubstrings.so.0
-	ln -sf libsubstrings.so.0.1 $(PREFIX)/lib/libsubstrings.so
+	install -v -m 0644 libsubstrings.so.0.2 $(PREFIX)/lib/
+	ln -sf libsubstrings.so.0.2 $(PREFIX)/lib/libsubstrings.so.0
+	ln -sf libsubstrings.so.0.2 $(PREFIX)/lib/libsubstrings.so
 
 install-static:
 	mkdir -p $(PREFIX)/lib/

@@ -150,7 +150,7 @@ static unsigned __SubStrings__Copy(register char *Dest, register const char *Sou
 
 static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize,
 									const char *const Until, const SSBool RetValSkipsPastUntil)
-{ /*Copy Source to Dest until Until, copying a maximum of DestTotalSize - 1 characters.*/
+{ /*Copy Source to Dest until the string Until, copying a maximum of DestTotalSize - 1 characters.*/
 	register const char *Worker = Source;
 	const char *Stopper = SubStrings.Find(Until, 1, Source); /*Look for the stopper.*/
 	
@@ -286,15 +286,19 @@ static unsigned __SubStrings__Replace(register char *Stream, char **TempBuf, uns
 	The optimizer should do ok by inlining these.*/
 	char *HalfOne = TempBuf[0], *HalfTwo = TempBuf[1];
 	register unsigned ReplaceCount = 0;
+	char *Last;
 	
 	for (; SubStrings.Split(HalfOne, HalfTwo, Match, Stream, SPLIT_NOKEEP); ++ReplaceCount)
 	{
 		*Stream = '\0';
 		SubStrings.Cat(Stream, HalfOne, StreamTotalSize);
+		
+		Last = Stream + SubStrings.Length(Stream);
+		
 		SubStrings.Cat(Stream, Replacement, StreamTotalSize);
 		SubStrings.Cat(Stream, HalfTwo, StreamTotalSize);
 		
-		Stream = SubStrings.Find(Replacement, 1, Stream) + SubStrings.Length(Replacement);
+		Stream = Last + SubStrings.Length(Replacement);
 	}
 	
 	return ReplaceCount;

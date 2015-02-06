@@ -17,7 +17,7 @@ static SSBool __SubStrings__NCompare(const char *Match, const unsigned Length, c
 static unsigned __SubStrings__Cat(char *Dest, const char *Snip, unsigned DestTotalSize);
 static char *__SubStrings__Find(const char *const Match, const int ResultNumber, const char *const InStream);
 static char *__SubStrings__CFind(const char Match, const int ResultNumber, const char *InStream);
-static unsigned __SubStrings__Replace(register char *Stream, unsigned StreamTotalSize, const char *Match, const char *Replacement);
+static unsigned __SubStrings__Replace(register char *Stream, char **TempBuf, unsigned StreamTotalSize, const char *Match, const char *Replacement);
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode);
 static char *__SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
@@ -150,9 +150,9 @@ static unsigned __SubStrings__Copy(register char *Dest, register const char *Sou
 
 static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize,
 									const char *const Until, const int RetValSkipsPastUntil)
-{ //Copy Source to Dest until Until, copying a maximum of DestTotalSize - 1 characters.
+{ /*Copy Source to Dest until Until, copying a maximum of DestTotalSize - 1 characters.*/
 	register const char *Worker = Source;
-	const char *Stopper = SubStrings.Find(Until, 1, Source); //Look for the stopper.
+	const char *Stopper = SubStrings.Find(Until, 1, Source); /*Look for the stopper.*/
 	
 	if (!Stopper) Stopper = (void*)-1;
 	
@@ -169,7 +169,7 @@ static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register un
 }
 
 static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source)
-{ //Like strpbrk().
+{ /*Like strpbrk().*/
 	register const char *Worker = Source;
 	register const char *CL;
 	
@@ -185,7 +185,7 @@ static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source)
 }
 	
 static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const int RetValSkipPastMatching)
-{ //Same as CopyUntil(), except it does strpbrk() style matching instead of strstr() style.
+{ /*Same as CopyUntil(), except it does strpbrk() style matching instead of strstr() style.*/
 	register const char *Worker = Source;
 	const char *Stopper = SubStrings.FindAnyOf(UntilC, Source);
 	
@@ -220,7 +220,7 @@ static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, r
 }
 
 static unsigned __SubStrings__Cat(char *Dest, const char *Snip, const unsigned DestTotalSize)
-{ //Safe concatenation function.
+{ /*Safe concatenation function.*/
 	register unsigned Inc = 0;
 	register unsigned DestTotalLength = SubStrings.Length(Dest);
 	
@@ -238,7 +238,7 @@ static unsigned __SubStrings__Cat(char *Dest, const char *Snip, const unsigned D
 }
 
 static char *__SubStrings__Find(const char *const Match, const int ResultNumber, const char *const InStream)
-{ //Like strstr(), but can get a certain result number.
+{ /*Like strstr(), but can get a certain result number.*/
 	register const char *Worker = InStream;
 	const unsigned MatchLen = SubStrings.Length(Match);
 	const unsigned SLen = SubStrings.Length(InStream);
@@ -264,7 +264,7 @@ static char *__SubStrings__Find(const char *const Match, const int ResultNumber,
 }
 
 static char *__SubStrings__CFind(const char Match, const int ResultNumber, const char *const InStream)
-{ //Like strchr(), but can get a certain result number.
+{ /*Like strchr(), but can get a certain result number.*/
 	register const char *Worker = InStream;
 	register int CountInc = 0;
 	
@@ -280,10 +280,10 @@ static char *__SubStrings__CFind(const char Match, const int ResultNumber, const
 	return NULL;
 }
 
-static unsigned __SubStrings__Replace(register char *Stream, unsigned StreamTotalSize, const char *Match, const char *Replacement)
+static unsigned __SubStrings__Replace(register char *Stream, char **TempBuf, unsigned StreamTotalSize, const char *Match, const char *Replacement)
 { /*I decided to use some existing functions so we don't have to reinvent the wheel here.
 	The optimizer should do ok by inlining these.*/
-	char HalfOne[StreamTotalSize], HalfTwo[StreamTotalSize];
+	char *HalfOne = TempBuf[0], *HalfTwo = TempBuf[1];
 	register unsigned ReplaceCount = 0;
 	
 	for (; SubStrings.Split(HalfOne, HalfTwo, Match, Stream, SPLIT_NOKEEP); ++ReplaceCount)

@@ -111,11 +111,11 @@ static char *__SubStrings__LP__NextLine(const char *InStream)
 {
 	register const char *Worker = InStream;
 	
-	while (*Worker != '\n' && *Worker != '\0') ++Worker;
+	while (*Worker != '\r' && *Worker != '\n' && *Worker != '\0') ++Worker;
 	
 	if (*Worker == '\0') return NULL;
 	
-	while (*Worker == '\n') ++Worker;
+	while (*Worker == '\r' || *Worker == '\n') ++Worker;
 	
 	if (*Worker == '\0') return NULL;
 	
@@ -127,13 +127,13 @@ static char *__SubStrings__LP__WhitespaceJump(const char *InStream)
 {
 	register const char *Worker = InStream;
 	
-	while (*Worker != ' ' && *Worker != '\t' && *Worker != '\n' && *Worker != '\0') ++Worker;
+	while (*Worker != ' ' && *Worker != '\t' && *Worker != '\r' && *Worker != '\n' && *Worker != '\0') ++Worker;
 	
-	if (*Worker == '\0' || *Worker == '\n') return NULL;
+	if (*Worker == '\0' || *Worker == '\r' || *Worker == '\n') return NULL;
 	
 	while (*Worker == ' ' || *Worker == '\t') ++Worker;
 	
-	if (*Worker == '\0' || *Worker == '\n') return NULL;
+	if (*Worker == '\0' || *Worker == '\r' || *Worker == '\n') return NULL;
 	
 	return (char*)Worker;
 }

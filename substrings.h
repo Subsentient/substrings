@@ -28,8 +28,8 @@ extern const struct _SubStrings
 	SSBool (*Split)(char *HalfOneOut, char *HalfTwoOut, const char *Match, const char *InStream, int Mode);
 	char *(*Between)(char *OutBuf, const char *First, const char *Second, const char *InStream);
 	char *(*Reverse)(char *OutStream, const char *InStream);
-	char *(*CopyUntil)(char *Dest, const char *Source, unsigned DestTotalSize, const char *Until, const int RetValSkipsPastUntil);
-	char *(*CopyUntilC)(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const int RetValSkipPastMatching);
+	char *(*CopyUntil)(char *Dest, const char *Source, unsigned DestTotalSize, const char *Until, const SSBool RetValSkipsPastUntil);
+	char *(*CopyUntilC)(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const SSBool RetValSkipPastMatching);
 	char *(*FindAnyOf)(const char *CharList, const char *Source);
 	struct
 	{

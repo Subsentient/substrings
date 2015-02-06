@@ -22,8 +22,8 @@ static SSBool __SubStrings__Split(register char *HalfOneOut, register char *Half
 								const char *const Match, const char *const InStream, int Mode);
 static char *__SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
 static char *__SubStrings__Reverse(char *OutStream, const char *InStream);
-static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize, const char *const Until, const int RetValSkipsPastUntil);
-static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const int RetValSkipPastMatching);
+static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize, const char *const Until, const SSBool RetValSkipsPastUntil);
+static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const SSBool RetValSkipPastMatching);
 static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source);
 static char *__SubStrings__LP__NextLine(const char *InStream);
 static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
@@ -149,7 +149,7 @@ static unsigned __SubStrings__Copy(register char *Dest, register const char *Sou
 }
 
 static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize,
-									const char *const Until, const int RetValSkipsPastUntil)
+									const char *const Until, const SSBool RetValSkipsPastUntil)
 { /*Copy Source to Dest until Until, copying a maximum of DestTotalSize - 1 characters.*/
 	register const char *Worker = Source;
 	const char *Stopper = SubStrings.Find(Until, 1, Source); /*Look for the stopper.*/
@@ -184,7 +184,8 @@ static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source)
 	return NULL;
 }
 	
-static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const int RetValSkipPastMatching)
+static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize,
+									const char *UntilC, const SSBool RetValSkipPastMatching)
 { /*Same as CopyUntil(), except it does strpbrk() style matching instead of strstr() style.*/
 	register const char *Worker = Source;
 	const char *Stopper = SubStrings.FindAnyOf(UntilC, Source);

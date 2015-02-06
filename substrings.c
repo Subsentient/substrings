@@ -23,6 +23,8 @@ static SSBool __SubStrings__Split(register char *HalfOneOut, register char *Half
 static char *__SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
 static char *__SubStrings__Reverse(char *OutStream, const char *InStream);
 static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize, const char *const Until, const int RetValSkipsPastUntil);
+static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const int RetValSkipPastMatching);
+static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source);
 static char *__SubStrings__LP__NextLine(const char *InStream);
 static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
 
@@ -34,7 +36,7 @@ const struct _SubStrings SubStrings =
 		__SubStrings__Length, __SubStrings__Copy, __SubStrings__Cat,
 		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
 		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
-		__SubStrings__CopyUntil,
+		__SubStrings__CopyUntil, __SubStrings__CopyUntilC, __SubStrings__FindAnyOf,
 		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump }
 	};
 
@@ -164,6 +166,57 @@ static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register un
 	
 	
 	return (char*)Stopper + (RetValSkipsPastUntil ? SubStrings.Length(Until) : 0);
+}
+
+static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source)
+{ //Like strpbrk().
+	register const char *Worker = Source;
+	register const char *CL;
+	
+	for (; *Worker != '\0'; ++Worker)
+	{
+		for (CL = CharList; *CL != '\0'; ++CL)
+		{
+			if (*Worker == *CL) return (char*)Worker;
+		}
+	}
+	
+	return NULL;
+}
+	
+static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const int RetValSkipPastMatching)
+{ //Same as CopyUntil(), except it does strpbrk() style matching instead of strstr() style.
+	register const char *Worker = Source;
+	const char *Stopper = SubStrings.FindAnyOf(UntilC, Source);
+	
+	if (!Stopper) Stopper = (void*)-1;
+	
+	for (; Worker != Stopper && *Worker != '\0' && DestTotalSize > 0; ++Dest, ++Worker, --DestTotalSize)
+	{
+		*Dest = *Worker;
+	}
+	*Dest = '\0';
+	
+	if (Stopper == (void*)-1) return NULL;
+	
+	if (RetValSkipPastMatching)
+	{
+		const char *CL;
+		
+		Worker = Stopper;
+	CheckRestart:
+		for (CL = UntilC; *CL != '\0'; ++CL)
+		{
+			if (*Worker == *CL)
+			{
+				++Worker;
+				goto CheckRestart;
+			}
+		}
+	}
+		
+	return (char*)Worker;
+	
 }
 
 static unsigned __SubStrings__Cat(char *Dest, const char *Snip, const unsigned DestTotalSize)

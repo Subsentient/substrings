@@ -17,7 +17,7 @@ static SSBool __SubStrings__NCompare(const char *Match, const unsigned Length, c
 static unsigned __SubStrings__Cat(char *Dest, const char *Snip, unsigned DestTotalSize);
 static char *__SubStrings__Find(const char *const Match, const int ResultNumber, const char *const InStream);
 static char *__SubStrings__CFind(const char Match, const int ResultNumber, const char *InStream);
-static unsigned __SubStrings__Replace(register char *Stream, char **TempBuf, unsigned StreamTotalSize, const char *Match, const char *Replacement);
+static unsigned __SubStrings__Replace(register char *Stream, void *TempBuf, unsigned StreamTotalSize, const char *Match, const char *Replacement);
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode);
 static char *__SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
@@ -281,10 +281,10 @@ static char *__SubStrings__CFind(const char Match, const int ResultNumber, const
 	return NULL;
 }
 
-static unsigned __SubStrings__Replace(register char *Stream, char **TempBuf, unsigned StreamTotalSize, const char *Match, const char *Replacement)
+static unsigned __SubStrings__Replace(register char *Stream, void *TempBuf, unsigned StreamTotalSize, const char *Match, const char *Replacement)
 { /*I decided to use some existing functions so we don't have to reinvent the wheel here.
 	The optimizer should do ok by inlining these.*/
-	char *HalfOne = TempBuf[0], *HalfTwo = TempBuf[1];
+	char *HalfOne = TempBuf, *HalfTwo = (char*)TempBuf + StreamTotalSize;
 	register unsigned ReplaceCount = 0;
 	char *Last;
 	

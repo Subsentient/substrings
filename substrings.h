@@ -31,11 +31,21 @@ extern const struct _SubStrings
 	char *(*CopyUntil)(char *Dest, const char *Source, unsigned DestTotalSize, const char *Until, const SSBool RetValSkipsPastUntil);
 	char *(*CopyUntilC)(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const SSBool RetValSkipPastMatching);
 	char *(*FindAnyOf)(const char *CharList, const char *Source);
+	
 	struct
-	{
+	{ /*Line-processing, for iterating through files in memory with newlines and/or carriage returns separating lines.*/
 		char *(*NextLine)(const char *InStream);
 		char *(*WhitespaceJump)(const char *InStream);
 	} Line;
+	
+	struct
+	{ /*ASCII coversion tools.*/
+		char (*UpperC)(char Character);
+		char (*LowerC)(char Character);
+		char *(*UpperS)(char *String);
+		char *(*LowerS)(char *String);
+	} ASCII;
+	
 } SubStrings;
 
 #ifdef __cplusplus

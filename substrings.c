@@ -27,6 +27,10 @@ static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, r
 static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source);
 static char *__SubStrings__LP__NextLine(const char *InStream);
 static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
+static char __SubStrings__ASCII__LowerC(const char C);
+static char __SubStrings__ASCII__UpperC(const char C);
+static char *__SubStrings__ASCII__LowerS(char *const S);
+static char *__SubStrings__ASCII__UpperS(char *const S);
 
 /*Actual functions.*/
 const struct _SubStrings SubStrings =
@@ -37,7 +41,9 @@ const struct _SubStrings SubStrings =
 		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
 		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
 		__SubStrings__CopyUntil, __SubStrings__CopyUntilC, __SubStrings__FindAnyOf,
-		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump }
+		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump },
+		{ __SubStrings__ASCII__UpperC, __SubStrings__ASCII__LowerC,
+			__SubStrings__ASCII__UpperS, __SubStrings__ASCII__LowerS }
 	};
 
 static unsigned __SubStrings__Length(const char *String)
@@ -136,6 +142,48 @@ static char *__SubStrings__LP__WhitespaceJump(const char *InStream)
 	if (*Worker == '\0' || *Worker == '\r' || *Worker == '\n') return NULL;
 	
 	return (char*)Worker;
+}
+
+static char __SubStrings__ASCII__LowerC(const char C)
+{
+	if (C >= 'A' && C <= 'Z') return C + ('a' - 'A');
+	else return C;
+}
+
+static char __SubStrings__ASCII__UpperC(const char C)
+{
+	if (C >= 'a' && C <= 'z') return C - ('a' - 'A');
+	else return C;
+}
+
+static char *__SubStrings__ASCII__UpperS(char *const S)
+{
+	register char *Worker = S;
+	
+	for (; *Worker != '\0'; ++Worker)
+	{
+		if (*Worker >= 'a' && *Worker <= 'z')
+		{
+			*Worker -= ('a' - 'A');
+		}
+	}
+
+	return S;
+}
+
+static char *__SubStrings__ASCII__LowerS(char *const S)
+{
+	register char *Worker = S;
+	
+	for (; *Worker != '\0'; ++Worker)
+	{
+		if (*Worker >= 'A' && *Worker <= 'Z')
+		{
+			*Worker += ('a' - 'A');
+		}
+	}
+	
+	return S;
 }
 
 static unsigned __SubStrings__Copy(register char *Dest, register const char *Source, unsigned Max)

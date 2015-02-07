@@ -29,14 +29,15 @@ static unsigned __SubStrings__Strip(const char *const Match, char *const Source)
 static unsigned __SubStrings__StripC(const char *const Match, char *const Source);
 static char *__SubStrings__LP__NextLine(const char *InStream);
 static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
+static SSBool __SubStrings__LP__GetLine(const char **Ptr, char *OutStream, unsigned OutStreamTotalSize);
 static char __SubStrings__ASCII__LowerC(const char C);
 static char __SubStrings__ASCII__UpperC(const char C);
 static char *__SubStrings__ASCII__LowerS(char *const S);
 static char *__SubStrings__ASCII__UpperS(char *const S);
 
-/*Actual functions.*/
+
 const struct _SubStrings SubStrings =
-	{
+	{ /*Add all functions to a proper place in this struct, and in substrings.h's definition of its type.*/
 		__SubStrings__Compare, __SubStrings__NCompare, 
 		__SubStrings__StartsWith, __SubStrings__EndsWith,
 		__SubStrings__Length, __SubStrings__Copy, __SubStrings__Cat,
@@ -44,11 +45,12 @@ const struct _SubStrings SubStrings =
 		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
 		__SubStrings__CopyUntil, __SubStrings__CopyUntilC, __SubStrings__FindAnyOf,
 		__SubStrings__Strip, __SubStrings__StripC,
-		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump },
+		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump, __SubStrings__LP__GetLine },
 		{ __SubStrings__ASCII__UpperC, __SubStrings__ASCII__LowerC,
 			__SubStrings__ASCII__UpperS, __SubStrings__ASCII__LowerS }
 	};
-
+	
+/*Actual functions.*/
 static unsigned __SubStrings__Length(const char *String)
 {
 	register unsigned Inc = 0;
@@ -468,3 +470,28 @@ static char *__SubStrings__Reverse(register char *OutStream, register const char
 	
 	return (char*)RetVal;
 }
+
+static SSBool __SubStrings__LP__GetLine(const char **Ptr, char *OutStream, const unsigned OutStreamTotalSize)
+{ /*Takes the value of *Ptr, gets a line from it, and modifies *Ptr to point to the next line after, or returns false if bad.*/
+	register const char *Worker = *Ptr;
+	register unsigned Inc = 0;
+	
+	/*No line.*/
+	if (*Worker == '\0') return false;
+	
+	/*Do the line copy.*/
+	for (; *Worker != '\r' && *Worker != '\n' && *Worker != '\0' && Inc < OutStreamTotalSize - 1; ++Worker, ++OutStream, ++Inc)
+	{
+		*OutStream = *Worker;
+	}
+	*OutStream = '\0';
+	
+	while (*Worker == '\r' || *Worker == '\n') ++Worker;
+	
+	*Ptr = Worker;
+	
+	return true;
+}
+
+
+

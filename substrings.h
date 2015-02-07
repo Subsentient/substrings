@@ -38,6 +38,7 @@ extern const struct _SubStrings
 	{ /*Line-processing, for iterating through files in memory with newlines and/or carriage returns separating lines.*/
 		char *(*NextLine)(const char *InStream);
 		char *(*WhitespaceJump)(const char *InStream);
+		SSBool (*GetLine)(const char **Ptr, char *OutStream, unsigned OutStreamTotalSize);
 	} Line;
 	
 	struct

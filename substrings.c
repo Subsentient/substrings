@@ -25,6 +25,8 @@ static char *__SubStrings__Reverse(char *OutStream, const char *InStream);
 static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize, const char *const Until, const SSBool RetValSkipsPastUntil);
 static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const SSBool RetValSkipPastMatching);
 static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source);
+static unsigned __SubStrings__Strip(const char *const Match, char *const Source);
+static unsigned __SubStrings__StripC(const char *const Match, char *const Source);
 static char *__SubStrings__LP__NextLine(const char *InStream);
 static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
 static char __SubStrings__ASCII__LowerC(const char C);
@@ -41,6 +43,7 @@ const struct _SubStrings SubStrings =
 		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
 		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
 		__SubStrings__CopyUntil, __SubStrings__CopyUntilC, __SubStrings__FindAnyOf,
+		__SubStrings__Strip, __SubStrings__StripC,
 		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump },
 		{ __SubStrings__ASCII__UpperC, __SubStrings__ASCII__LowerC,
 			__SubStrings__ASCII__UpperS, __SubStrings__ASCII__LowerS }
@@ -111,6 +114,36 @@ static SSBool __SubStrings__EndsWith(const char *Match, const char *Source)
 	if (Inc == MatchLen) return true;
 	
 	return false;
+}
+
+static unsigned __SubStrings__Strip(const char *const Match, char *const Source)
+{ /*Removes all matching patterns from Source and returns the number of detections.*/
+	register char *Worker = Source;
+	const unsigned Len = SubStrings.Length(Source);
+	const unsigned MatchLen = SubStrings.Length(Match);
+	register unsigned Inc = 0;
+	
+	for (; (Worker = SubStrings.Find(Match, 1, Worker)); ++Inc)
+	{
+		SubStrings.Copy(Worker, Worker + MatchLen, Len);
+	}
+	
+	return Inc;
+}
+
+
+static unsigned __SubStrings__StripC(const char *const Match, char *const Source)
+{
+	register char *Worker = Source;
+	const unsigned Len = SubStrings.Length(Source);
+	register unsigned Inc = 0;
+	
+	for (; (Worker = SubStrings.FindAnyOf(Match, Worker)); ++Inc)
+	{
+		SubStrings.Copy(Worker, Worker + 1, Len);
+	}
+	
+	return Inc;
 }
 
 static char *__SubStrings__LP__NextLine(const char *InStream)

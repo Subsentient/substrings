@@ -31,6 +31,8 @@ extern const struct _SubStrings
 	char *(*CopyUntil)(char *Dest, const char *Source, unsigned DestTotalSize, const char *Until, const SSBool RetValSkipsPastUntil);
 	char *(*CopyUntilC)(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const SSBool RetValSkipPastMatching);
 	char *(*FindAnyOf)(const char *CharList, const char *Source);
+	unsigned (*Strip)(const char *Match, char *Source);
+	unsigned (*StripC)(const char *Match, char *Source);
 	
 	struct
 	{ /*Line-processing, for iterating through files in memory with newlines and/or carriage returns separating lines.*/

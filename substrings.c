@@ -17,13 +17,16 @@ static SSBool __SubStrings__NCompare(const char *Match, const unsigned Length, c
 static unsigned __SubStrings__Cat(char *Dest, const char *Snip, unsigned DestTotalSize);
 static char *__SubStrings__Find(const char *const Match, const int ResultNumber, const char *const InStream);
 static char *__SubStrings__CFind(const char Match, const int ResultNumber, const char *InStream);
-static unsigned __SubStrings__Replace(register char *Stream, void *TempBuf, unsigned StreamTotalSize, const char *Match, const char *Replacement);
+static unsigned __SubStrings__Replace(register char *Stream, void *TempBuf, unsigned StreamTotalSize, const char *Match,
+									const char *Replacement);
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode);
 static char *__SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
 static char *__SubStrings__Reverse(char *OutStream, const char *InStream);
-static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize, const char *const Until, const SSBool RetValSkipsPastUntil);
-static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize, const char *UntilC, const SSBool RetValSkipPastMatching);
+static SSBool __SubStrings__CopyUntil(char *Dest, register unsigned DestTotalSize,
+									const char **Ptr, const char *const Trigger);
+static SSBool __SubStrings__CopyUntilC(register char *Dest, register unsigned DestTotalSize, const char **Ptr,
+										const char *Triggers);
 static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source);
 static unsigned __SubStrings__Strip(const char *const Match, char *const Source);
 static unsigned __SubStrings__StripC(const char *const Match, char *const Source);
@@ -231,13 +234,16 @@ static unsigned __SubStrings__Copy(register char *Dest, register const char *Sou
 	return Inc;
 }
 
-static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register unsigned DestTotalSize,
-									const char *const Until, const SSBool RetValSkipsPastUntil)
+static SSBool __SubStrings__CopyUntil(char *Dest, register unsigned DestTotalSize,
+									const char **Ptr, const char *const Trigger)
 { /*Copy Source to Dest until the string Until, copying a maximum of DestTotalSize - 1 characters.*/
-	register const char *Worker = Source;
-	const char *Stopper = SubStrings.Find(Until, 1, Source); /*Look for the stopper.*/
+	register const char *Worker = NULL;
+	register const char *Stopper = NULL;
 	
-	if (!Stopper) Stopper = (void*)-1;
+	if (!*Ptr || **Ptr == '\0') return false;
+	
+	Worker = *Ptr;
+	Stopper = SubStrings.Find(Trigger, 1, *Ptr);
 	
 	for (; Worker != Stopper && *Worker != '\0' && DestTotalSize > 0; ++Dest, ++Worker, --DestTotalSize)
 	{
@@ -245,10 +251,14 @@ static char *__SubStrings__CopyUntil(char *Dest, const char *Source, register un
 	}
 	*Dest = '\0';
 	
-	if (Stopper == (void*)-1) return NULL;
 	
+	if (!Stopper) *Ptr = NULL;
+	else
+	{
+		*Ptr = Stopper + SubStrings.Length(Trigger);
+	}
 	
-	return (char*)Stopper + (RetValSkipsPastUntil ? SubStrings.Length(Until) : 0);
+	return true;
 }
 
 static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source)
@@ -267,13 +277,16 @@ static char *__SubStrings__FindAnyOf(const char *CharList, const char *Source)
 	return NULL;
 }
 	
-static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, register unsigned DestTotalSize,
-									const char *UntilC, const SSBool RetValSkipPastMatching)
+static SSBool __SubStrings__CopyUntilC(register char *Dest, register unsigned DestTotalSize, const char **Ptr,
+										const char *Triggers)
 { /*Same as CopyUntil(), except it does strpbrk() style matching instead of strstr() style.*/
-	register const char *Worker = Source;
-	const char *Stopper = SubStrings.FindAnyOf(UntilC, Source);
+	register const char *Worker = NULL;
+	register const char *Stopper = NULL;
 	
-	if (!Stopper) Stopper = (void*)-1;
+	if (!*Ptr || **Ptr == '\0') return false;
+	
+	Worker = *Ptr;
+	Stopper = SubStrings.FindAnyOf(Triggers, *Ptr);
 	
 	for (; Worker != Stopper && *Worker != '\0' && DestTotalSize > 0; ++Dest, ++Worker, --DestTotalSize)
 	{
@@ -281,15 +294,14 @@ static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, r
 	}
 	*Dest = '\0';
 	
-	if (Stopper == (void*)-1) return NULL;
 	
-	if (RetValSkipPastMatching)
+	if (!Stopper) *Ptr = NULL;
+	else
 	{
 		const char *CL;
-		
-		Worker = Stopper;
+
 	CheckRestart:
-		for (CL = UntilC; *CL != '\0'; ++CL)
+		for (CL = Triggers; *CL != '\0'; ++CL)
 		{
 			if (*Worker == *CL)
 			{
@@ -297,10 +309,11 @@ static char *__SubStrings__CopyUntilC(register char *Dest, const char *Source, r
 				goto CheckRestart;
 			}
 		}
-	}
 		
-	return (char*)Worker;
+		*Ptr = Worker;
+	}	
 	
+	return true;
 }
 
 static unsigned __SubStrings__Cat(char *Dest, const char *Snip, const unsigned DestTotalSize)

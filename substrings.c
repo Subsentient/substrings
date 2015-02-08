@@ -32,7 +32,7 @@ static unsigned __SubStrings__Strip(const char *const Match, char *const Source)
 static unsigned __SubStrings__StripC(const char *const Match, char *const Source);
 static char *__SubStrings__LP__NextLine(const char *InStream);
 static char *__SubStrings__LP__WhitespaceJump(const char *InStream);
-static SSBool __SubStrings__LP__GetLine(const char **Ptr, char *OutStream, unsigned OutStreamTotalSize);
+static SSBool __SubStrings__LP__GetLine(char *OutStream, unsigned OutStreamTotalSize, const char **Ptr);
 static char __SubStrings__ASCII__LowerC(const char C);
 static char __SubStrings__ASCII__UpperC(const char C);
 static char *__SubStrings__ASCII__LowerS(char *const S);
@@ -54,7 +54,7 @@ const struct _SubStrings SubStrings =
 	};
 	
 /*Actual functions.*/
-static unsigned __SubStrings__Length(const char *String)
+static unsigned __SubStrings__Length(register const char *String)
 {
 	register unsigned Inc = 0;
 	
@@ -484,7 +484,7 @@ static char *__SubStrings__Reverse(register char *OutStream, register const char
 	return (char*)RetVal;
 }
 
-static SSBool __SubStrings__LP__GetLine(const char **Ptr, char *OutStream, const unsigned OutStreamTotalSize)
+static SSBool __SubStrings__LP__GetLine(char *OutStream, const unsigned OutStreamTotalSize, const char **Ptr)
 { /*Takes the value of *Ptr, gets a line from it, and modifies *Ptr to point to the next line after, or returns false if bad.*/
 	register const char *Worker = *Ptr;
 	register unsigned Inc = 0;

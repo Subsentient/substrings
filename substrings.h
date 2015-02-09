@@ -35,6 +35,8 @@ extern const struct _SubStrings
 	char *(*FindAnyOf)(const char *CharList, const char *Source);
 	unsigned (*Strip)(const char *Match, char *Source);
 	unsigned (*StripC)(const char *Match, char *Source);
+	unsigned (*StripTrailingChars)(register char *Stream, const char *Match);
+	unsigned (*StripLeadingChars)(register char *Stream, const char *Match);
 	
 	struct
 	{ /*Line-processing, for iterating through files in memory with newlines and/or carriage returns separating lines.*/

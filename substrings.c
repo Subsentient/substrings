@@ -37,7 +37,8 @@ static char __SubStrings__ASCII__LowerC(const char C);
 static char __SubStrings__ASCII__UpperC(const char C);
 static char *__SubStrings__ASCII__LowerS(char *const S);
 static char *__SubStrings__ASCII__UpperS(char *const S);
-
+static unsigned __SubStrings__StripLeadingChars(register char *Stream, const char *Match);
+static unsigned __SubStrings__StripTrailingChars(register char *Stream, const char *Match);
 
 const struct _SubStrings SubStrings =
 	{ /*Add all functions to a proper place in this struct, and in substrings.h's definition of its type.*/
@@ -47,7 +48,8 @@ const struct _SubStrings SubStrings =
 		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
 		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
 		__SubStrings__CopyUntil, __SubStrings__CopyUntilC, __SubStrings__FindAnyOf,
-		__SubStrings__Strip, __SubStrings__StripC,
+		__SubStrings__Strip, __SubStrings__StripC, __SubStrings__StripTrailingChars,
+		__SubStrings__StripLeadingChars,
 		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump, __SubStrings__LP__GetLine },
 		{ __SubStrings__ASCII__UpperC, __SubStrings__ASCII__LowerC,
 			__SubStrings__ASCII__UpperS, __SubStrings__ASCII__LowerS }
@@ -506,5 +508,53 @@ static SSBool __SubStrings__LP__GetLine(char *OutStream, const unsigned OutStrea
 	return true;
 }
 
+static unsigned __SubStrings__StripTrailingChars(register char *Stream, const char *Match)
+{
+	register const char *M;
+	unsigned StripCount = 0;
+	
+	if (!*Stream) return 0;
+	
+	while (*Stream) ++Stream;
+	
+	for (--Stream; *Stream; --Stream)
+	{
+		for (M = Match; *M; ++M)
+		{
+			if (*Stream == *M)
+			{
+				*Stream = '\0';
+				++StripCount;
+				break; /*From the outer loop.*/
+			}
+		}
+	}
+	
+	return StripCount;
+}
 
+static unsigned __SubStrings__StripLeadingChars(register char *Stream, const char *Match)
+{
+	register const char *M;
+	char *Orig = Stream, *Worker = Stream;
+	unsigned StripCount = 0;
+	
+	for (; *Stream; ++Stream)
+	{
+		for (M = Match; *M; ++M)
+		{
+			if (*Stream == *M)
+			{
+				Worker = Stream + 1;
+				++StripCount;
+				break;
+			}
+		}
+	}
 
+	if (Stream == Orig) return 0;
+	
+	SubStrings.Copy(Orig, Worker, SubStrings.Length(Worker) + 1);
+	
+	return StripCount;
+}

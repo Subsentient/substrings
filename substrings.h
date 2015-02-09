@@ -29,9 +29,9 @@ extern const struct _SubStrings
 	char *(*Between)(char *OutBuf, const char *First, const char *Second, const char *InStream);
 	char *(*Reverse)(char *OutStream, const char *InStream);
 	SSBool (*CopyUntil)(char *Dest, register unsigned DestTotalSize,
-									const char **Ptr, const char *const Trigger);
+									const char **Ptr, const char *const Trigger, const SSBool SkipPastAdjacentTriggers);
 	SSBool (*CopyUntilC)(register char *Dest, register unsigned DestTotalSize, const char **Ptr,
-										const char *Triggers);
+										const char *Triggers, const SSBool SkipPastAdjacentTriggers);
 	char *(*FindAnyOf)(const char *CharList, const char *Source);
 	unsigned (*Strip)(const char *Match, char *Source);
 	unsigned (*StripC)(const char *Match, char *Source);

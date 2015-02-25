@@ -519,26 +519,32 @@ static SSBool __SubStrings__LP__GetLine(char *OutStream, const unsigned OutStrea
 	return true;
 }
 
-static unsigned __SubStrings__StripTrailingChars(register char *Stream, const char *Match)
+static unsigned __SubStrings__StripTrailingChars(char *Stream, const char *Match)
 {
 	register const char *M;
-	unsigned StripCount = 0;
+	register unsigned StripCount = 0;
+	register int Inc = 0;
 	
 	if (!*Stream) return 0;
 	
-	while (*Stream) ++Stream;
+	while (Stream[Inc]) ++Inc;
 	
-	for (--Stream; *Stream; --Stream)
+	for (--Inc; Inc >= 0; --Inc)
 	{
+		SSBool Found = false;
+		
 		for (M = Match; *M; ++M)
 		{
-			if (*Stream == *M)
+			if (Stream[Inc] == *M)
 			{
-				*Stream = '\0';
+				Stream[Inc] = '\0';
 				++StripCount;
-				break; /*From the outer loop.*/
+				Found = true;
+				break;
 			}
 		}
+		
+		if (!Found) break;
 	}
 	
 	return StripCount;

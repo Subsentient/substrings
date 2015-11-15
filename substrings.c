@@ -21,7 +21,7 @@ static unsigned __SubStrings__Replace(register char *Stream, void *TempBuf, unsi
 									const char *Replacement);
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode);
-static char *__SubStrings__Between(char *OutBuf, const char *First, const char *Second, const char *InStream);
+static char *__SubStrings__Extract(char *OutBuf, const char *After, const char *Before, const char *InStream);
 static char *__SubStrings__Reverse(char *OutStream, const char *InStream);
 static SSBool __SubStrings__CopyUntil(char *Dest, register unsigned DestTotalSize,
 							const char **Ptr, const char *const Trigger, const SSBool SkipPastAdjacentTriggers);
@@ -39,6 +39,12 @@ static char *__SubStrings__ASCII__LowerS(char *const S);
 static char *__SubStrings__ASCII__UpperS(char *const S);
 static unsigned __SubStrings__StripLeadingChars(register char *Stream, const char *Match);
 static unsigned __SubStrings__StripTrailingChars(register char *Stream, const char *Match);
+static SSBool __SubStrings__ASCII__IsLowerC(const char Char);
+static SSBool __SubStrings__ASCII__IsUpperC(const char Char);
+static SSBool __SubStrings__ASCII__IsDigitC(const char Char);
+static SSBool __SubStrings__ASCII__IsLowerS(const char *String);
+static SSBool __SubStrings__ASCII__IsUpperS(const char *String);
+static SSBool __SubStrings__ASCII__IsDigitS(const char *String);
 
 const struct _SubStrings SubStrings =
 	{ /*Add all functions to a proper place in this struct, and in substrings.h's definition of its type.*/
@@ -46,13 +52,15 @@ const struct _SubStrings SubStrings =
 		__SubStrings__StartsWith, __SubStrings__EndsWith,
 		__SubStrings__Length, __SubStrings__Copy, __SubStrings__Cat,
 		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
-		__SubStrings__Split, __SubStrings__Between, __SubStrings__Reverse,
+		__SubStrings__Split, __SubStrings__Extract, __SubStrings__Extract, __SubStrings__Reverse,
 		__SubStrings__CopyUntil, __SubStrings__CopyUntilC, __SubStrings__FindAnyOf,
 		__SubStrings__Strip, __SubStrings__StripC, __SubStrings__StripTrailingChars,
 		__SubStrings__StripLeadingChars,
 		{ __SubStrings__LP__NextLine, __SubStrings__LP__WhitespaceJump, __SubStrings__LP__GetLine },
 		{ __SubStrings__ASCII__UpperC, __SubStrings__ASCII__LowerC,
-			__SubStrings__ASCII__UpperS, __SubStrings__ASCII__LowerS }
+			__SubStrings__ASCII__UpperS, __SubStrings__ASCII__LowerS,
+			__SubStrings__ASCII__IsUpperC, __SubStrings__ASCII__IsLowerC, __SubStrings__ASCII__IsDigitC,
+			__SubStrings__ASCII__IsUpperS, __SubStrings__ASCII__IsLowerS, __SubStrings__ASCII__IsDigitS}
 	};
 	
 /*Actual functions.*/
@@ -224,6 +232,73 @@ static char *__SubStrings__ASCII__LowerS(char *const S)
 	}
 	
 	return S;
+}
+
+static SSBool __SubStrings__ASCII__IsUpperC(const char Char)
+{
+	if (Char >= 'A' && Char <= 'Z') return true;
+	return false;
+}
+
+static SSBool __SubStrings__ASCII__IsLowerC(const char Char)
+{
+	if (Char >= 'a' && Char <= 'z') return true;
+	return false;
+}
+
+static SSBool __SubStrings__ASCII__IsDigitC(const char Char)
+{
+	if (Char >= '0' && Char <= '9') return true;
+	return false;
+}
+
+static SSBool __SubStrings__ASCII__IsUpperS(register const char *String)
+{
+	for (; *String != '\0'; ++String)
+	{
+		if (*String < 'A' || *String > 'Z') return false;
+	}
+	
+	return true;
+}
+	
+static SSBool __SubStrings__ASCII__IsLowerS(register const char *String)
+{
+	for (; *String != '\0'; ++String)
+	{
+		if (*String < 'a' || *String > 'z') return false;
+	}
+	
+	return true;
+}
+	
+static SSBool __SubStrings__ASCII__IsDigitS(register const char *String)
+{
+	for (; *String != '\0'; ++String)
+	{
+		if (*String < '0' || *String > '9') return false;
+	}
+	
+	return true;
+}
+
+static char *__SubStrings__Extract(register char *Dest, const char *After, const char *Before, const char *InStream)
+{ /*Pull something out of the middle of a string.*/
+	const char *Begin = After ? SubStrings.Find(After, 1, InStream) : InStream;
+	const char *End = Before ? SubStrings.Find(Before, 1, InStream) : InStream + SubStrings.Length(InStream);
+	
+	register const char *Worker = Begin + (After ? SubStrings.Length(After) : 0);
+	
+	const char *const RetVal = Worker;
+	if (!Dest || !InStream) return NULL;
+	
+	for (; Worker != End; ++Worker, ++Dest)
+	{
+		*Dest = *Worker;
+	}
+	*Dest = '\0';
+	
+	return (char*)RetVal;
 }
 
 static unsigned __SubStrings__Copy(register char *Dest, register const char *Source, unsigned Max)
@@ -457,26 +532,6 @@ static SSBool __SubStrings__Split(register char *HalfOneOut, register char *Half
 	
 	return true;
 }	
-
-static char *__SubStrings__Between(register char *OutBuf, const char *First, const char *Second, const char *InStream)
-{ /*Get the data between First and Second, and return the location in InStream we found it.*/
-	const char *RetVal = NULL;
-	register const char *Worker = NULL;
-	const char *FirstStart = SubStrings.Find(First, 1, InStream);
-	const char *SecondStart = SubStrings.Find(Second, 1, InStream);
-	
-	if (!FirstStart || !SecondStart || FirstStart >= SecondStart) return NULL;
-	
-	RetVal = Worker = FirstStart + SubStrings.Length(First);
-	
-	while (Worker != SecondStart)
-	{
-		*OutBuf++ = *Worker++;
-	}
-	*OutBuf = '\0';
-	
-	return (char*)RetVal;
-}
 
 static char *__SubStrings__Reverse(register char *OutStream, register const char *InStream)
 { /*Reverse a string of text*/

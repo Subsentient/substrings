@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define SUBSTRINGS_VERSION "0.31"
+#define SUBSTRINGS_VERSION "0.40"
 
 typedef signed char SSBool;
 
@@ -26,7 +26,12 @@ extern const struct _SubStrings
 	char *(*CFind)(const char Match, const int ResultNumber, const char *InStream);
 	unsigned (*Replace)(register char *Stream, void *TempBuf, unsigned StreamSize, const char *Match, const char *Replacement);
 	SSBool (*Split)(char *HalfOneOut, char *HalfTwoOut, const char *Match, const char *InStream, int Mode);
+	
+	/*Between and Extract are the exact same function, but Between is the deprecated name.
+	 * The new Extract function allows null arguments and works a bit better, enough so to warrant this I believe.*/
 	char *(*Between)(char *OutBuf, const char *First, const char *Second, const char *InStream);
+	char *(*Extract)(char *OutBuf, const char *First, const char *Second, const char *InStream);
+	
 	char *(*Reverse)(char *OutStream, const char *InStream);
 	SSBool (*CopyUntil)(char *Dest, register unsigned DestTotalSize,
 									const char **Ptr, const char *const Trigger, const SSBool SkipPastAdjacentTriggers);
@@ -51,6 +56,12 @@ extern const struct _SubStrings
 		char (*LowerC)(char Character);
 		char *(*UpperS)(char *String);
 		char *(*LowerS)(char *String);
+		SSBool (*IsUpperC)(const char Character);
+		SSBool (*IsLowerC)(const char Character);
+		SSBool (*IsDigitC)(const char Character);
+		SSBool (*IsUpperS)(const char *String);
+		SSBool (*IsLowerS)(const char *String);
+		SSBool (*IsDigitS)(const char *String);
 	} ASCII;
 	
 } SubStrings;

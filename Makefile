@@ -44,5 +44,5 @@ uninstall:
 clean:
 	rm -vf libsubstrings.*
 	rm -vf substrings.o
-
+	rm -vf substrings.h.gch
 distclean: clean

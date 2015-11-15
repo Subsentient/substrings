@@ -285,12 +285,11 @@ static SSBool __SubStrings__ASCII__IsDigitS(register const char *String)
 static char *__SubStrings__Extract(register char *Dest, const char *After, const char *Before, const char *InStream)
 { /*Pull something out of the middle of a string.*/
 	const char *Begin = After ? SubStrings.Find(After, 1, InStream) : InStream;
-	const char *End = Before ? SubStrings.Find(Before, 1, InStream) : InStream + SubStrings.Length(InStream);
+	
 	
 	register const char *Worker = Begin + (After ? SubStrings.Length(After) : 0);
-	
+	register const char *End = Before ? SubStrings.Find(Before, 1, Worker) : InStream + SubStrings.Length(InStream);
 	const char *const RetVal = Worker;
-	if (!Dest || !InStream) return NULL;
 	
 	for (; Worker != End; ++Worker, ++Dest)
 	{

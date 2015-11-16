@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define SUBSTRINGS_VERSION "0.41"
+#define SUBSTRINGS_VERSION "0.43"
 
 typedef signed char SSBool;
 
@@ -27,10 +27,9 @@ extern const struct _SubStrings
 	unsigned (*Replace)(register char *Stream, void *TempBuf, unsigned StreamSize, const char *Match, const char *Replacement);
 	SSBool (*Split)(char *HalfOneOut, char *HalfTwoOut, const char *Match, const char *InStream, int Mode);
 	
-	/*Between and Extract are the exact same function, but Between is the deprecated name.
-	 * The new Extract function allows null arguments and works a bit better, enough so to warrant this I believe.*/
+	/*Between and Extract only differ in that Extract requires OutBufSize, and one does not. Between is deprecated.*/
 	char *(*Between)(char *OutBuf, const char *First, const char *Second, const char *InStream);
-	char *(*Extract)(char *OutBuf, const char *First, const char *Second, const char *InStream);
+	char *(*Extract)(char *OutBuf, unsigned OutBufSize, const char *First, const char *Second, const char *InStream);
 	
 	char *(*Reverse)(char *OutStream, const char *InStream);
 	SSBool (*CopyUntil)(char *Dest, register unsigned DestTotalSize,

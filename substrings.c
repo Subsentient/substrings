@@ -21,7 +21,8 @@ static unsigned __SubStrings__Replace(register char *Stream, void *TempBuf, unsi
 									const char *Replacement);
 static SSBool __SubStrings__Split(register char *HalfOneOut, register char *HalfTwoOut,
 								const char *const Match, const char *const InStream, int Mode);
-static char *__SubStrings__Extract(char *OutBuf, const char *After, const char *Before, const char *InStream);
+static char *__SubStrings__Between(char *OutBuf, const char *After, const char *Before, const char *InStream);
+static char *__SubStrings__Extract(char *OutBuf, register unsigned OutBufSize, const char *After, const char *Before, const char *InStream);
 static char *__SubStrings__Reverse(char *OutStream, const char *InStream);
 static SSBool __SubStrings__CopyUntil(char *Dest, register unsigned DestTotalSize,
 							const char **Ptr, const char *const Trigger, const SSBool SkipPastAdjacentTriggers);
@@ -52,7 +53,7 @@ const struct _SubStrings SubStrings =
 		__SubStrings__StartsWith, __SubStrings__EndsWith,
 		__SubStrings__Length, __SubStrings__Copy, __SubStrings__Cat,
 		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
-		__SubStrings__Split, __SubStrings__Extract, __SubStrings__Extract, __SubStrings__Reverse,
+		__SubStrings__Split, __SubStrings__Between, __SubStrings__Extract, __SubStrings__Reverse,
 		__SubStrings__CopyUntil, __SubStrings__CopyUntilC, __SubStrings__FindAnyOf,
 		__SubStrings__Strip, __SubStrings__StripC, __SubStrings__StripTrailingChars,
 		__SubStrings__StripLeadingChars,
@@ -288,7 +289,7 @@ static SSBool __SubStrings__ASCII__IsDigitS(register const char *String)
 	return true;
 }
 
-static char *__SubStrings__Extract(register char *Dest, const char *After, const char *Before, const char *InStream)
+static char *__SubStrings__Between(register char *Dest, const char *After, const char *Before, const char *InStream)
 { /*Pull something out of the middle of a string.*/
 	const char *Begin = After ? SubStrings.Find(After, 1, InStream) : InStream;
 	
@@ -298,6 +299,24 @@ static char *__SubStrings__Extract(register char *Dest, const char *After, const
 	const char *const RetVal = Worker;
 	
 	for (; Worker != End; ++Worker, ++Dest)
+	{
+		*Dest = *Worker;
+	}
+	*Dest = '\0';
+	
+	return (char*)RetVal;
+}
+
+static char *__SubStrings__Extract(register char *Dest, register unsigned DestSize, const char *After, const char *Before, const char *InStream)
+{ /*Pull something out of the middle of a string.*/
+	const char *Begin = After ? SubStrings.Find(After, 1, InStream) : InStream;
+	
+	
+	register const char *Worker = Begin + (After ? SubStrings.Length(After) : 0);
+	register const char *End = Before ? SubStrings.Find(Before, 1, Worker) : InStream + SubStrings.Length(InStream);
+	const char *const RetVal = Worker;
+	
+	for (; DestSize - 1 > 0 && Worker != End; ++Worker, ++Dest, --DestSize)
 	{
 		*Dest = *Worker;
 	}

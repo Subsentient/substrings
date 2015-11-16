@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define SUBSTRINGS_VERSION "0.40"
+#define SUBSTRINGS_VERSION "0.41"
 
 typedef signed char SSBool;
 

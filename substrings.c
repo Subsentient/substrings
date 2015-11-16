@@ -254,6 +254,8 @@ static SSBool __SubStrings__ASCII__IsDigitC(const char Char)
 
 static SSBool __SubStrings__ASCII__IsUpperS(register const char *String)
 {
+	if (!*String) return false;
+	
 	for (; *String != '\0'; ++String)
 	{
 		if (*String < 'A' || *String > 'Z') return false;
@@ -264,6 +266,8 @@ static SSBool __SubStrings__ASCII__IsUpperS(register const char *String)
 	
 static SSBool __SubStrings__ASCII__IsLowerS(register const char *String)
 {
+	if (!*String) return false;
+	
 	for (; *String != '\0'; ++String)
 	{
 		if (*String < 'a' || *String > 'z') return false;
@@ -274,6 +278,8 @@ static SSBool __SubStrings__ASCII__IsLowerS(register const char *String)
 	
 static SSBool __SubStrings__ASCII__IsDigitS(register const char *String)
 {
+	if (!*String) return false;
+	
 	for (; *String != '\0'; ++String)
 	{
 		if (*String < '0' || *String > '9') return false;

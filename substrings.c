@@ -14,6 +14,8 @@ static SSBool __SubStrings__EndsWith(const char *Match, const char *Source);
 static unsigned __SubStrings__Copy(char *Dest, const char *Source, unsigned Max);
 static SSBool __SubStrings__Compare(const char *Match, const char *Source);
 static SSBool __SubStrings__NCompare(const char *Match, const unsigned Length, const char *Source);
+static SSBool __SubStrings__CaseNCompare(const char *Match, const unsigned Length, const char *Source);
+static SSBool __SubStrings__CaseCompare(register const char *Match, register const char *Source);
 static unsigned __SubStrings__Cat(char *Dest, const char *Snip, unsigned DestTotalSize);
 static char *__SubStrings__Find(const char *const Match, const int ResultNumber, const char *const InStream);
 static char *__SubStrings__CFind(const char Match, const int ResultNumber, const char *InStream);
@@ -49,7 +51,7 @@ static SSBool __SubStrings__ASCII__IsDigitS(const char *String);
 
 const struct _SubStrings SubStrings =
 	{ /*Add all functions to a proper place in this struct, and in substrings.h's definition of its type.*/
-		__SubStrings__Compare, __SubStrings__NCompare, 
+		__SubStrings__Compare, __SubStrings__NCompare, __SubStrings__CaseCompare, __SubStrings__CaseNCompare,
 		__SubStrings__StartsWith, __SubStrings__EndsWith,
 		__SubStrings__Length, __SubStrings__Copy, __SubStrings__Cat,
 		__SubStrings__Find, __SubStrings__CFind, __SubStrings__Replace,
@@ -90,9 +92,47 @@ static SSBool __SubStrings__NCompare(register const char *Match, const unsigned 
 {
 	register unsigned Inc = 0;
 	
-	for (; Inc < Length - 1 && *Match && *Source; ++Inc, ++Match, ++Source)
+	for (; Inc < Length && *Match && *Source; ++Inc, ++Match, ++Source)
 	{
 		if (*Match != *Source) return false;
+	}
+	
+	if (*Match != *Source) return false;
+	
+	return true;
+}
+
+static SSBool __SubStrings__CaseCompare(register const char *Match, register const char *Source)
+{
+	for (; *Match && *Source; ++Match, ++Source)
+	{
+		register char Cmp1 = *Match;
+		register char Cmp2 = *Source;
+		
+		if (Cmp1 >= 'A' && Cmp1 <= 'Z') Cmp1 = Cmp1 + ('a' - 'A');
+		if (Cmp2 >= 'A' && Cmp2 <= 'Z') Cmp2 = Cmp2 + ('a' - 'A');
+		
+		if (Cmp1 != Cmp2) return false;
+	}
+	
+	if (*Match != *Source) return false;
+	
+	return true;
+}
+
+static SSBool __SubStrings__CaseNCompare(register const char *Match, const unsigned Length, register const char *Source)
+{
+	unsigned Inc = 0;
+	
+	for (; Inc < Length && *Match && *Source; ++Inc, ++Match, ++Source)
+	{
+		register char Cmp1 = *Match;
+		register char Cmp2 = *Source;
+		
+		if (Cmp1 >= 'A' && Cmp1 <= 'Z') Cmp1 = Cmp1 + ('a' - 'A');
+		if (Cmp2 >= 'A' && Cmp2 <= 'Z') Cmp2 = Cmp2 + ('a' - 'A');
+		
+		if (Cmp1 != Cmp2) return false;
 	}
 	
 	if (*Match != *Source) return false;

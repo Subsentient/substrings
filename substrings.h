@@ -17,6 +17,8 @@ extern const struct _SubStrings
 {
 	SSBool (*Compare)(const char *Match, const char *Source);
 	SSBool (*NCompare)(const char *Match, const unsigned Length, const char *Source);
+	SSBool (*CaseCompare)(const char *Match, const char *Source);
+	SSBool (*CaseNCompare)(const char *Match, const unsigned Length, const char *Source);
 	SSBool (*StartsWith)(const char *Match, const char *Source);
 	SSBool (*EndsWith)(const char *Match, const char *Source);
 	unsigned (*Length)(const char *String);

@@ -90,7 +90,7 @@ static SSBool __SubStrings__NCompare(register const char *Match, const unsigned 
 {
 	register unsigned Inc = 0;
 	
-	for (; *Match && *Source && Inc < Length - 1; ++Inc, ++Match, ++Source)
+	for (; Inc < Length - 1 && *Match && *Source; ++Inc, ++Match, ++Source)
 	{
 		if (*Match != *Source) return false;
 	}
@@ -291,30 +291,25 @@ static SSBool __SubStrings__ASCII__IsDigitS(register const char *String)
 
 static char *__SubStrings__Between(register char *Dest, const char *After, const char *Before, const char *InStream)
 { /*Pull something out of the middle of a string.*/
-	const char *Begin = After ? SubStrings.Find(After, 1, InStream) : InStream;
-	
-	
-	register const char *Worker = Begin + (After ? SubStrings.Length(After) : 0);
-	register const char *End = Before ? SubStrings.Find(Before, 1, Worker) : InStream + SubStrings.Length(InStream);
-	const char *const RetVal = Worker;
-	
-	for (; Worker != End; ++Worker, ++Dest)
-	{
-		*Dest = *Worker;
-	}
-	*Dest = '\0';
-	
-	return (char*)RetVal;
+	return SubStrings.Extract(Dest, SubStrings.Length(InStream) + 1, After, Before, InStream); /*Making an assumption for DestSize*/
 }
 
 static char *__SubStrings__Extract(register char *Dest, register unsigned DestSize, const char *After, const char *Before, const char *InStream)
 { /*Pull something out of the middle of a string.*/
-	const char *Begin = After ? SubStrings.Find(After, 1, InStream) : InStream;
+	const char *Begin;
+	register const char *Worker;
+	register const char *End;
+	const char *RetVal;
 	
+	if ((After && !SubStrings.Find(After, 1, InStream)) || (Before && !SubStrings.Find(Before, 1, InStream)))
+	{ /*Check if we're being given bad things to search for.*/
+		return NULL;
+	}
 	
-	register const char *Worker = Begin + (After ? SubStrings.Length(After) : 0);
-	register const char *End = Before ? SubStrings.Find(Before, 1, Worker) : InStream + SubStrings.Length(InStream);
-	const char *const RetVal = Worker;
+	Begin = After ? SubStrings.Find(After, 1, InStream) : InStream;
+	Worker = Begin + (After ? SubStrings.Length(After) : 0);
+	End = Before ? SubStrings.Find(Before, 1, Worker) : InStream + SubStrings.Length(InStream);
+	RetVal = Worker;
 	
 	for (; DestSize - 1 > 0 && Worker != End; ++Worker, ++Dest, --DestSize)
 	{
@@ -346,7 +341,7 @@ static SSBool __SubStrings__CopyUntil(char *Dest, register unsigned DestTotalSiz
 	Worker = *Ptr;
 	Stopper = SubStrings.Find(Trigger, 1, *Ptr);
 	
-	for (; Worker != Stopper && *Worker != '\0' && DestTotalSize > 0; ++Dest, ++Worker, --DestTotalSize)
+	for (; DestTotalSize - 1 > 0 && Worker != Stopper && *Worker != '\0'; ++Dest, ++Worker, --DestTotalSize)
 	{
 		*Dest = *Worker;
 	}
@@ -396,7 +391,7 @@ static SSBool __SubStrings__CopyUntilC(register char *Dest, register unsigned De
 	Worker = *Ptr;
 	Stopper = SubStrings.FindAnyOf(Triggers, *Ptr);
 	
-	for (; Worker != Stopper && *Worker != '\0' && DestTotalSize > 0; ++Dest, ++Worker, --DestTotalSize)
+	for (; DestTotalSize - 1 > 0 && Worker != Stopper && *Worker != '\0'; ++Dest, ++Worker, --DestTotalSize)
 	{
 		*Dest = *Worker;
 	}
@@ -583,7 +578,7 @@ static SSBool __SubStrings__LP__GetLine(char *OutStream, const unsigned OutStrea
 	if (*Worker == '\0') return false;
 	
 	/*Do the line copy.*/
-	for (; *Worker != '\r' && *Worker != '\n' && *Worker != '\0' && Inc < OutStreamTotalSize - 1; ++Worker, ++OutStream, ++Inc)
+	for (; Inc < OutStreamTotalSize - 1 && *Worker != '\r' && *Worker != '\n' && *Worker != '\0'; ++Worker, ++OutStream, ++Inc)
 	{
 		*OutStream = *Worker;
 	}

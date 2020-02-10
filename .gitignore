@@ -1,0 +1,5 @@
+**/*.so
+**/libsubstrings.*
+**/*.dll
+**/*.o
+**/*.gch

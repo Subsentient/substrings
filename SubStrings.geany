@@ -20,13 +20,17 @@ indent_mode=2
 [project]
 name=SubStrings
 base_path=/mnt/datafs/ben/substrings
+description=
 
 [long line marker]
 long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=-1
+current_page=2
+FILE_NAME_0=855;Make;0;EUTF-8;1;1;0;%2Fhome%2Fben%2Fsubstrings%2FMakefile;0;4
+FILE_NAME_1=211;C;0;EUTF-8;1;1;0;%2Fhome%2Fben%2Fsubstrings%2Fsubstrings.c;0;4
+FILE_NAME_2=394;C++;0;EUTF-8;1;1;0;%2Fhome%2Fben%2Fsubstrings%2Fsubstrings.h;0;4
 
 [VTE]
-last_dir=/mnt/datafs/ben/coyoterepos/coyote-front-panel-ng
+last_dir=/mnt/datafs/ben/substrings

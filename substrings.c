@@ -99,7 +99,7 @@ SSBool SubStrings_CaseNCompare(register const char *Match, const unsigned Length
 	return true;
 }
 
-SSBool SubStrings_StartsWith(const char *Match, const char *Source)
+SSBool SubStrings_StartsWith(register const char *Match, register const char *Source)
 {
 	const unsigned Len = SubStrings_Length(Match);
 	register unsigned Inc = 0;
@@ -113,7 +113,7 @@ SSBool SubStrings_StartsWith(const char *Match, const char *Source)
 	return false;
 }
 
-SSBool SubStrings_EndsWith(const char *Match, const char *Source)
+SSBool SubStrings_EndsWith(register const char *Match, register const char *Source)
 {
 	const unsigned SourceLen = SubStrings_Length(Source);
 	const unsigned MatchLen = SubStrings_Length(Match);
